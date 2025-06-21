@@ -1,13 +1,6 @@
--- NOTE: Plugins can specify dependencies.
---
--- The dependencies are proper plugin specifications as well - anything
--- you do for a plugin at the top level, you can do for a dependency.
---
--- Use the `dependencies` key to specify the dependencies of a particular plugin
-
 return { -- Fuzzy Finder (files, lsp, etc)
   "nvim-telescope/telescope.nvim",
-  event = "VimEnter",
+  cmd = "Telescope",
   dependencies = {
     "nvim-lua/plenary.nvim",
     { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -28,7 +21,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- Useful for getting pretty icons, but requires a Nerd Font.
     { "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
   },
-  key = {
+  keys = {
     {
       "<leader>,",
       "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
