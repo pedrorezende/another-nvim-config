@@ -104,3 +104,15 @@ keymaps.set("i", "<S-Tab>", function()
     ls.jump(-1)
   end
 end, { noremap = true, silent = true })
+
+vim.cmd([[
+nmap <F9> <cmd>call vimspector#Launch()<cr>
+nmap <F5> <cmd>call vimspector#StepOver()<cr>
+nmap <F8> <cmd>call vimspector#Reset()<cr>
+nmap <F11> <cmd>call vimspector#StepOver()<cr>")
+nmap <F12> <cmd>call vimspector#StepOut()<cr>")
+nmap <F10> <cmd>call vimspector#StepInto()<cr>")
+]])
+keymaps.set("n", "Db", ":call vimspector#ToggleBreakpoint()<cr>")
+keymaps.set("n", "Dw", ":call vimspector#AddWatch()<cr>")
+keymaps.set("n", "De", ":call vimspector#Evaluate()<cr>")
