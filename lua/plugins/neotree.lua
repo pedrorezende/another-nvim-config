@@ -1,12 +1,13 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
   branch = "v3.x",
-  cmd = "Neotree",
+  cmd = { "Neotree" },
+  -- drop image preview; it’s slow
   dependencies = {
     "nvim-lua/plenary.nvim",
-    "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+    -- disable icons for speed; re-enable if you want them
+    -- "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
-    "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
   },
   keys = {
     {
@@ -35,49 +36,54 @@ return {
     vim.cmd([[Neotree close]])
   end,
   init = function()
-    -- FIX: use `autocmd` for lazy-loading neo-tree instead of directly requiring it,
-    -- because `cwd` is not set up properly.
+    -- lazy-load only when starting with a directory
     vim.api.nvim_create_autocmd("BufEnter", {
       group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
-      desc = "Start Neo-tree with directory",
       once = true,
       callback = function()
         if package.loaded["neo-tree"] then
           return
-        else
-          local stats = vim.uv.fs_stat(vim.fn.argv(0))
-          if stats and stats.type == "directory" then
-            require("neo-tree")
-          end
+        end
+        local stats = (vim.uv or vim.loop).fs_stat(vim.fn.argv(0))
+        if stats and stats.type == "directory" then
+          require("neo-tree")
         end
       end,
     })
   end,
   opts = {
-    sources = { "buffers", "filesystem", "git_status", "document_symbols" },
-    open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+    -- keep only the fast sources
+    sources = { "filesystem", "buffers" }, -- remove "git_status" and "document_symbols" by default
+    enable_git_status = false, -- huge win; open git view on demand via <leader>ge
+    enable_diagnostics = false, -- avoid LSP spam in tree
+
+    -- filesystem perf
     filesystem = {
       bind_to_cwd = false,
-      follow_current_file = { enabled = true, leave_dirs_open = false },
-      use_libuv_file_watcher = true,
+      follow_current_file = { enabled = false }, -- avoids constant refresh
+      use_libuv_file_watcher = true, -- native watcher
+      -- shallow scan = faster listing (v3 supports this)
+      scan_mode = "shallow",
       filtered_items = {
-        visible = true,
-        show_hidden_count = true,
-        hide_dotfiles = false,
+        visible = false, -- don’t render hidden entries at all
+        show_hidden_count = false,
+        hide_dotfiles = true,
         hide_gitignored = true,
-        hide_by_name = {
-          ".git",
-          ".DS_Store",
-          "thumbs.db",
-        },
-        never_show = {},
+        hide_by_name = { ".git", ".DS_Store", "thumbs.db", "node_modules", "dist" },
       },
+      hijack_netrw_behavior = "open_default",
+      group_empty_dirs = true,
     },
+
     buffers = {
-      follow_current_file = { enabled = true },
+      follow_current_file = { enabled = false },
+      show_unloaded = false,
     },
+
     window = {
+      -- floating is heavier; docked left is faster
       position = "float",
+      width = 28,
       mappings = {
         ["<space>"] = "none",
         ["O"] = {
@@ -88,23 +94,53 @@ return {
         },
       },
     },
+
     default_component_configs = {
+      icon = { enabled = false }, -- skip devicons
+      name = { use_git_status_colors = false },
+      modified = { symbol = "" }, -- no modified marker
+      git_status = { symbols = {} }, -- no git glyphs
       indent = {
-        with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
+        with_expanders = true,
         expander_collapsed = "",
         expander_expanded = "",
         expander_highlight = "NeoTreeExpander",
       },
+      diagnostics = { symbols = {} },
+    },
+
+    -- renderer trims
+    renderers = {
+      directory = { { "indent" }, { "current_filter" }, { "name" } },
+      file = { { "indent" }, { "name" } },
+    },
+
+    -- misc perf
+    event_handlers = {
+      -- stop expensive auto-refresh storms
+      {
+        event = "file_opened",
+        handler = function()
+          require("neo-tree.command").execute({ action = "close" })
+        end,
+      },
     },
   },
   config = function(_, opts)
-    opts.event_handlers = opts.event_handlers or {}
     require("neo-tree").setup(opts)
+
+    -- optional: enable git source only when requested
+    vim.api.nvim_create_user_command("NeoGitOn", function()
+      require("neo-tree.command").execute({ source = "git_status", toggle = true })
+    end, {})
+
+    -- optional: refresh git view after lazygit closes if you enable git_status
     vim.api.nvim_create_autocmd("TermClose", {
       pattern = "*lazygit",
       callback = function()
-        if package.loaded["neo-tree.sources.git_status"] then
-          require("neo-tree.sources.git_status").refresh()
+        local ok, git = pcall(require, "neo-tree.sources.git_status")
+        if ok then
+          git.refresh()
         end
       end,
     })
