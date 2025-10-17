@@ -1,3 +1,28 @@
+-- 1) Core runtime: disable unused built-ins (saves RAM + a few ms)
+vim.g.loaded_gzip = 1
+vim.g.loaded_man = 1
+vim.g.loaded_matchit = 1
+vim.g.loaded_matchparen = 1
+vim.g.loaded_shada = 1
+vim.g.loaded_spellfile_plugin = 1
+vim.g.loaded_tarPlugin = 1
+vim.g.loaded_tutor_mode_plugin = 1
+vim.g.loaded_zipPlugin = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+vim.lsp.set_log_level("off")
+--
+vim.opt.timeout = true
+vim.opt.timeoutlen = 300 -- mappings feel snappy
+vim.opt.ttimeoutlen = 10 -- terminal keycode timeout
+vim.opt.updatetime = 200 -- CursorHold, LSP timers
+
+-- avoid ripple redraw
+vim.opt.cursorline = false
+vim.opt.relativenumber = false -- or limit to Normal mode only
+vim.opt.termguicolors = true
+vim.opt.scrolloff = 2
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -18,7 +43,6 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    { import = "lazyvim.plugins.extras.linting.eslint" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
     -- import/override with your plugins
     { import = "plugins" },
