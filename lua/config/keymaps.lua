@@ -97,6 +97,18 @@ keymaps.set("i", "<C-Tab>", function()
   end
 end, { noremap = true, silent = true })
 
+-- Normal mode: delete without yanking
+vim.keymap.set("n", "D", '"_d', { desc = "Delete without yank" })
+vim.keymap.set("n", "DD", '"_dd', { desc = "Delete without yank" })
+
+-- Visual mode: delete selection without yanking
+vim.keymap.set("v", "DD", '"_dd', { desc = "Delete selection without yank" })
+
+-- Replace (change) without yank
+vim.keymap.set("n", "X", '"_c', { desc = "Change without yank" })
+vim.keymap.set("n", "XX", '"_cc', { desc = "Change without yank" })
+vim.keymap.set("v", "XX", '"_cc', { desc = "Change selection without yank" })
+
 -- Jumping to the previous snippet position
 keymaps.set("i", "<S-Tab>", function()
   local ls = require("luasnip")
@@ -105,14 +117,9 @@ keymaps.set("i", "<S-Tab>", function()
   end
 end, { noremap = true, silent = true })
 
-vim.cmd([[
-nmap <F9> <cmd>call vimspector#Launch()<cr>
-nmap <F5> <cmd>call vimspector#StepOver()<cr>
-nmap <F8> <cmd>call vimspector#Reset()<cr>
-nmap <F11> <cmd>call vimspector#StepOver()<cr>")
-nmap <F12> <cmd>call vimspector#StepOut()<cr>")
-nmap <F10> <cmd>call vimspector#StepInto()<cr>")
-]])
-keymaps.set("n", "Db", ":call vimspector#ToggleBreakpoint()<cr>")
-keymaps.set("n", "Dw", ":call vimspector#AddWatch()<cr>")
-keymaps.set("n", "De", ":call vimspector#Evaluate()<cr>")
+local dap, dapui = require("dap"), require("dapui")
+vim.keymap.set("n", "<F5>", dap.continue, { desc = "Start/Continue" })
+vim.keymap.set("n", "<F6>", dap.terminate, { desc = "Terminate" })
+vim.keymap.set("n", "<F7>", dap.step_into, { desc = "Step Into" })
+vim.keymap.set("n", "<F8>", dap.step_over, { desc = "Step Over" })
+vim.keymap.set("n", "<S-F8>", dap.step_out, { desc = "Step Out" })
