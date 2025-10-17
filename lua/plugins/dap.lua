@@ -1,4 +1,7 @@
-require("dap").configurations.rust = {
+local dap = require("dap")
+
+-- Rust
+dap.configurations.rust = {
   {
     type = "codelldb",
     request = "launch",
@@ -11,6 +14,7 @@ require("dap").configurations.rust = {
   },
 }
 
+-- General Config
 return {
   "jay-babu/mason-nvim-dap.nvim",
   dependencies = "mason.nvim",
@@ -27,10 +31,9 @@ return {
     -- You'll need to check that you have the required things installed
     -- online, please don't ask me how to install them :)
     ensure_installed = {
+      "js",
       "codelldb",
       "elixir",
-      "chrome",
-      "node2",
     },
   },
   -- mason-nvim-dap is loaded when nvim-dap loads

@@ -65,10 +65,7 @@ return {
       -- shallow scan = faster listing (v3 supports this)
       scan_mode = "shallow",
       filtered_items = {
-        visible = false, -- don’t render hidden entries at all
         show_hidden_count = false,
-        hide_dotfiles = true,
-        hide_gitignored = true,
         hide_by_name = { ".git", ".DS_Store", "thumbs.db", "node_modules", "dist" },
       },
       hijack_netrw_behavior = "open_default",

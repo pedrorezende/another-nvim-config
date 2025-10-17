@@ -10,7 +10,7 @@ vim.g.loaded_tutor_mode_plugin = 1
 vim.g.loaded_zipPlugin = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrw = 1
-
+vim.lsp.set_log_level("off")
 --
 vim.opt.timeout = true
 vim.opt.timeoutlen = 300 -- mappings feel snappy
@@ -43,6 +43,7 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    { import = "lazyvim.plugins.extras.formatting.prettier" },
     -- import/override with your plugins
     { import = "plugins" },
   },
